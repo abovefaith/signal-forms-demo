@@ -1,0 +1,60 @@
+// DEMO 1 — "THE BEFORE": a classic Reactive Form.
+// Don't live-code this one. Open it, scroll, and let the audience feel the boilerplate.
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
+import { demoStyles } from '../shared/styles';
+
+function passwordsMatch(group: AbstractControl): ValidationErrors | null {
+  const pw = group.get('password')?.value;
+  const confirm = group.get('confirmPassword')?.value;
+  return pw === confirm ? null : { mismatch: true };
+}
+
+@Component({
+  selector: 'app-reactive-before',
+  imports: [ReactiveFormsModule],
+  styles: demoStyles,
+  template: `
+    <h2>Before: Reactive Forms</h2>
+    <form [formGroup]="form">
+      <label>Name <input formControlName="name" /></label>
+      @if (form.controls.name.touched && form.controls.name.hasError('required')) {
+        <span class="error">Name is required</span>
+      }
+
+      <label>Email <input formControlName="email" /></label>
+      @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+        <span class="error">Enter a valid email</span>
+      }
+
+      <label>Password <input type="password" formControlName="password" /></label>
+      <label>Confirm <input type="password" formControlName="confirmPassword" /></label>
+      @if (form.hasError('mismatch')) { <span class="error">Passwords don't match</span> }
+
+      <span class="hint">Name length (via valueChanges pipe): {{ nameLength }}</span>
+      <button [disabled]="form.invalid">Register</button>
+    </form>
+  `,
+})
+export class ReactiveBefore {
+  // ⚠️ Typed? Sort of. getRawValue() is typed, but .get('passwrd') compiles fine and returns null at runtime.
+  form = new FormGroup(
+    {
+      name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+      password: new FormControl('', { nonNullable: true, validators: [Validators.minLength(8)] }),
+      confirmPassword: new FormControl('', { nonNullable: true }),
+    },
+    { validators: passwordsMatch },
+  );
+
+  // ⚠️ To derive ONE number from the form we need an RxJS pipeline + manual cleanup.
+  nameLength = 0;
+  constructor() {
+    this.form.controls.name.valueChanges
+      .pipe(startWith(''), debounceTime(100), map((v) => v.length), distinctUntilChanged(), takeUntilDestroyed(inject(DestroyRef)))
+      .subscribe((len) => (this.nameLength = len)); // ...and in a zoneless app a plain field may not refresh the view without markForCheck()
+  }
+}
