@@ -1,18 +1,18 @@
-// A pretend backend, so the demos work without an internet connection.
-// Both functions add a short delay to behave like a real network call.
+// A fake server, so the demos work offline.
+// Each call waits a moment, like a real network request.
 
-// Usernames that are already "taken" on our fake server.
+// Usernames that are already taken.
 const TAKEN = ['faith', 'admin', 'gdg', 'soweto', 'angular'];
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** Resolves true if the username is free. The 800ms delay makes the pending state visible. */
+/** Returns true if the username is free. Takes 800ms so the "checking" message is visible. */
 export async function isUsernameAvailable(username: string): Promise<boolean> {
   await wait(800);
   return !TAKEN.includes(username.trim().toLowerCase());
 }
 
-/** Fake "register" endpoint. It rejects one specific email so we can show server-side errors. */
+/** Registers an attendee. The email taken@gdg.dev always fails, to show a server error. */
 export async function registerAttendee(data: unknown): Promise<{ ok: true } | { ok: false; field: 'email'; message: string }> {
   await wait(1000);
   const email = (data as { email?: string }).email ?? '';

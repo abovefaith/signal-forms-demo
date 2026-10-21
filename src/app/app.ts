@@ -12,7 +12,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   `,
   template: `
     <nav>
-      <a routerLink="/live" routerLinkActive="active">Live</a>
+      <!-- <a routerLink="/live" routerLinkActive="active">Live</a> -->
       <a routerLink="/before" routerLinkActive="active">1 · Before</a>
       <a routerLink="/basics" routerLinkActive="active">2 · Basics</a>
       <a routerLink="/dynamic" routerLinkActive="active">3 · Dynamic</a>

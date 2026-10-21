@@ -1,17 +1,12 @@
-// DEMO 2 - the same registration form, rebuilt with Signal Forms.
-// This is the finished version of what we live-code in live/live-coding.ts.
-// If anything breaks on stage, switch to this tab and carry on from here.
-//
-// The big idea: with Signal Forms, your data model comes first. You keep your data
-// in a normal signal, and form() builds a form around it. The form reads from and
-// writes to that signal, so there is only ever one copy of the data.
+// Demo 2: Basics
+// The same form, built with Signal Forms.
+// Your data lives in a signal, and form() builds the form around it.
 import { Component, computed, signal } from '@angular/core';
 import { JsonPipe } from '@angular/common';
 import { email, form, FormField, minLength, required } from '@angular/forms/signals';
 import { demoStyles } from '../shared/styles';
 
-// Step 1: describe the data with a plain TypeScript interface.
-// The form's shape, and its type checking, will be inferred from this.
+// Step 1: describe the data.
 interface Attendee {
   name: string;
   email: string;
@@ -25,15 +20,10 @@ interface Attendee {
   template: `
     <h2>After: Signal Forms</h2>
     <form>
-      <!--
-        [formField] binds an input to a field. It is two-way: typing updates the model
-        signal, and changing the model updates the input.
-        regForm.name   (no parentheses) is the field itself.
-        regForm.name() (with parentheses) is its current state: value, touched, errors...
-      -->
+      <!-- Step 2: bind each input to a field with [formField]. -->
       <label>Name <input [formField]="regForm.name" /></label>
+      <!-- Step 3: show errors. regForm.name is the field, regForm.name() is its state. -->
       @if (regForm.name().touched() && regForm.name().invalid()) {
-        <!-- errors() returns a list, each with the message we set in the schema below. -->
         @for (err of regForm.name().errors(); track err.kind) {
           <span class="error">{{ err.message }}</span>
         }
@@ -49,25 +39,20 @@ interface Attendee {
       <label>Password <input type="password" [formField]="regForm.password" /></label>
       <span class="hint">Strength: {{ strength() }}</span>
 
-      <!--
-        Type-safety demo: rename regForm.email to regForm.emial above and save.
-        The build fails immediately, instead of failing silently at runtime.
-      -->
       <button [disabled]="regForm().invalid()">Register</button>
     </form>
 
-    <!-- The raw model signal. Watch it update as you type: the form IS the data. -->
+    <!-- The model updates as you type. The form IS the data. -->
     <h3>Live model</h3>
     <pre>{{ attendee() | json }}</pre>
   `,
 })
 export class SignalBasics {
-  // Step 2: hold the data in a regular signal with starting values.
+  // Step 1: store the data in a signal.
   attendee = signal<Attendee>({ name: '', email: '', password: '' });
 
-  // Step 3: form() turns the signal into a "field tree": one field per property,
-  // fully typed. The second argument is the schema, where we declare the rules.
-  // "path" points at each property, so path.name means "the name field".
+  // Step 2: create the form from the signal. Every field is typed.
+  // Step 3: add the rules (the second argument is the "schema").
   regForm = form(this.attendee, (path) => {
     required(path.name, { message: 'Name is required' });
     required(path.email, { message: 'Email is required' });
@@ -75,12 +60,10 @@ export class SignalBasics {
     minLength(path.password, 8, { message: 'At least 8 characters' });
   });
 
-  // Step 4: values derived from the form are just computed() signals.
-  // Compare with Demo 1: no valueChanges, no subscribe, no manual cleanup.
-  // Angular re-runs this automatically whenever the password value changes.
+  // Step 4: derive values with computed(). No subscribe, no cleanup.
   strength = computed(() => {
     const pw = this.regForm.password().value();
-    if (pw.length === 0) return '-';
+    if (!pw) return '-';
     if (pw.length < 8) return 'weak';
     return /[0-9]/.test(pw) && /[A-Z]/.test(pw) ? 'strong' : 'okay';
   });

@@ -1,5 +1,5 @@
-// LIVE CODING - we build the registration form here, step by step, on stage.
-// The finished version of each step is in ../demos/ in case we need to jump ahead.
+// Live coding: we build Demo 2 here, on stage.
+// The finished version is demos/02-signal-basics.ts.
 import { Component, signal } from '@angular/core';
 import { demoStyles } from '../shared/styles';
 
