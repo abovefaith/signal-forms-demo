@@ -20,9 +20,9 @@ interface Attendee {
   template: `
     <h2>After: Signal Forms</h2>
     <form>
-      <!-- Step 2: bind each input to a field with [formField]. -->
+      <!-- Step 3: bind each input to a field with [formField]. -->
       <label>Name <input [formField]="regForm.name" /></label>
-      <!-- Step 3: show errors. regForm.name is the field, regForm.name() is its state. -->
+      <!-- Step 4: show errors. regForm.name is the field, regForm.name() is its state. -->
       @if (regForm.name().touched() && regForm.name().invalid()) {
         @for (err of regForm.name().errors(); track err.kind) {
           <span class="error">{{ err.message }}</span>
@@ -52,7 +52,7 @@ export class SignalBasics {
   attendee = signal<Attendee>({ name: '', email: '', password: '' });
 
   // Step 2: create the form from the signal. Every field is typed.
-  // Step 3: add the rules (the second argument is the "schema").
+  // Step 4: add the rules (the second argument is the "schema").
   regForm = form(this.attendee, (path) => {
     required(path.name, { message: 'Name is required' });
     required(path.email, { message: 'Email is required' });
@@ -60,7 +60,7 @@ export class SignalBasics {
     minLength(path.password, 8, { message: 'At least 8 characters' });
   });
 
-  // Step 4: derive values with computed(). No subscribe, no cleanup.
+  // Step 5: derive values with computed(). No subscribe, no cleanup.
   strength = computed(() => {
     const pw = this.regForm.password().value();
     if (!pw) return '-';

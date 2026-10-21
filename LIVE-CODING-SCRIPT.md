@@ -5,9 +5,9 @@ GDG Soweto · Faith Kawira · Angular 22
 | Demo | Tab | What you do | Time |
 |---|---|---|---|
 | 1 | 1 · Before | Show the old way | 2 min |
-| 2 | Live (backup: 2 · Basics) | Type it | 7 min |
+| 2 | Live (backup: 2 · Basics) | Type it | 8 min |
 | 3 | 3 · Dynamic | Type it | 6 min |
-| 4 | 4 · Async + Submit | Type it | 6 min |
+| 4 | 4 · Async + Submit | Type it | 7 min |
 | 5 | 5 · Interop | Show it | 2 min |
 
 The step numbers below match the `// Step` comments in each demo file.
@@ -43,7 +43,7 @@ Wi-Fi is not needed. The fake server in `shared/fake-api.ts` runs offline.
 
 ---
 
-## Demo 2: Basics (7 min, live)
+## Demo 2: Basics (8 min, live)
 
 **Type in:** `live/live-coding.ts` · **If stuck:** click the **2 · Basics** tab
 
@@ -70,7 +70,7 @@ attendee = signal<Attendee>({ name: '', email: '', password: '' });
 
 > "The model is just a type and a signal."
 
-### Step 2: Create the form and bind the inputs
+### Step 2: Create the form
 
 Imports:
 
@@ -86,6 +86,8 @@ Inside the class:
 ```ts
 regForm = form(this.attendee);
 ```
+
+### Step 3: Bind the inputs
 
 In the template, inside `<form>`:
 
@@ -108,7 +110,7 @@ Now show type safety: change `regForm.email` to `regForm.emial` and save. The bu
 
 Fix the typo.
 
-### Step 3: Add rules and show errors
+### Step 4: Add rules and show errors
 
 Add `required, email, minLength` to the import, then:
 
@@ -139,7 +141,7 @@ At the end of the form:
 
 > "`regForm.email` is the field. `regForm.email()` is its state: value, valid, touched, errors. Every one is a signal."
 
-### Step 4: Add a computed value (if there's time)
+### Step 5: Add a computed value (if there's time)
 
 Add `computed` to the `@angular/core` import, then:
 
@@ -222,7 +224,7 @@ Save. The T-shirt size shows the reason it's disabled. Tick the box to enable it
 
 ---
 
-## Demo 4: Async + Submit (6 min, live)
+## Demo 4: Async + Submit (7 min, live)
 
 **Type in:** `demos/04-async-and-submit.ts`, under `required(p.username, ...)`
 **If stuck:** run `git checkout src/app/demos/04-async-and-submit.ts` to restore the finished file.
