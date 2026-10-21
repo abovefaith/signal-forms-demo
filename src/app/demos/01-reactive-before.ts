@@ -21,30 +21,30 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
   styles: demoStyles,
   template: `
     <h2>Before: Reactive Forms</h2>
-    <form [formGroup]="form">
+    <form [formGroup]="reactiveForm">
       <label>Name <input formControlName="name" /></label>
-      @if (form.controls.name.touched && form.controls.name.hasError('required')) {
+      @if (reactiveForm.controls.name.touched && reactiveForm.controls.name.hasError('required')) {
         <span class="error">Name is required</span>
       }
 
       <label>Email <input formControlName="email" /></label>
-      @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+      @if (reactiveForm.controls.email.touched && reactiveForm.controls.email.hasError('email')) {
         <span class="error">Enter a valid email</span>
       }
 
       <label>Password <input type="password" formControlName="password" /></label>
       <label>Confirm <input type="password" formControlName="confirmPassword" /></label>
-      @if (form.hasError('mismatch')) { <span class="error">Passwords don't match</span> }
+      @if (reactiveForm.hasError('mismatch')) { <span class="error">Passwords don't match</span> }
 
       <span class="hint">Name length (via valueChanges pipe): {{ nameLength }}</span>
-      <button [disabled]="form.invalid">Register</button>
+      <button [disabled]="reactiveForm.invalid">Register</button>
     </form>
   `,
 })
 export class ReactiveBefore {
   // Problem 1: fields are looked up by string.
-  // form.get('passwrd') (a typo) still compiles, and returns null at runtime.
-  form = new FormGroup(
+  // reactiveForm.get('passwrd') (a typo) still compiles, and returns null at runtime.
+  reactiveForm = new FormGroup(
     {
       name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
       email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
@@ -58,7 +58,7 @@ export class ReactiveBefore {
   // an RxJS pipeline, and cleanup so we don't leak memory.
   nameLength = 0;
   constructor() {
-    this.form.controls.name.valueChanges
+    this.reactiveForm.controls.name.valueChanges
       .pipe(startWith(''), debounceTime(100), map((v) => v.length), distinctUntilChanged(), takeUntilDestroyed(inject(DestroyRef)))
       .subscribe((len) => (this.nameLength = len));
   }
