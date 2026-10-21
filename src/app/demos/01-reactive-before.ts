@@ -1,11 +1,18 @@
-// DEMO 1 — "THE BEFORE": a classic Reactive Form.
-// Don't live-code this one. Open it, scroll, and let the audience feel the boilerplate.
+// DEMO 1 - "BEFORE": a registration form built the classic way, with Reactive Forms.
+// This is the baseline we will compare Signal Forms against. Nothing here is wrong,
+// it is simply how most Angular apps are written today. Watch for three pain points:
+//   1. Fields are looked up by string name, so typos are not caught by the compiler.
+//   2. Rules that involve two fields need a validator on the whole FormGroup.
+//   3. Deriving even a single value from the form needs an RxJS pipeline and cleanup.
 import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
 import { demoStyles } from '../shared/styles';
 
+// Cross-field rule: "password" and "confirmPassword" must be equal.
+// Because it compares two controls, it cannot sit on either field. It has to be
+// attached to the parent FormGroup and reach into it with group.get('...') strings.
 function passwordsMatch(group: AbstractControl): ValidationErrors | null {
   const pw = group.get('password')?.value;
   const confirm = group.get('confirmPassword')?.value;
@@ -18,6 +25,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
   styles: demoStyles,
   template: `
     <h2>Before: Reactive Forms</h2>
+    <!-- The template is wired to the form through string names (formControlName="..."). -->
     <form [formGroup]="form">
       <label>Name <input formControlName="name" /></label>
       @if (form.controls.name.touched && form.controls.name.hasError('required')) {
@@ -31,6 +39,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
 
       <label>Password <input type="password" formControlName="password" /></label>
       <label>Confirm <input type="password" formControlName="confirmPassword" /></label>
+      <!-- The mismatch error lives on the group, not on the confirm field itself. -->
       @if (form.hasError('mismatch')) { <span class="error">Passwords don't match</span> }
 
       <span class="hint">Name length (via valueChanges pipe): {{ nameLength }}</span>
@@ -39,7 +48,9 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
   `,
 })
 export class ReactiveBefore {
-  // ⚠️ Typed? Sort of. getRawValue() is typed, but .get('passwrd') compiles fine and returns null at runtime.
+  // The form structure is defined separately from our data model.
+  // Typing is only partial: getRawValue() is typed, but form.get('passwrd')
+  // (note the typo) still compiles and simply returns null at runtime.
   form = new FormGroup(
     {
       name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -50,11 +61,15 @@ export class ReactiveBefore {
     { validators: passwordsMatch },
   );
 
-  // ⚠️ To derive ONE number from the form we need an RxJS pipeline + manual cleanup.
+  // Goal: show how many characters are in the name field. One number.
+  // To get it we subscribe to valueChanges, build an RxJS pipeline, and remember
+  // to unsubscribe (takeUntilDestroyed) so we don't leak memory.
   nameLength = 0;
   constructor() {
     this.form.controls.name.valueChanges
       .pipe(startWith(''), debounceTime(100), map((v) => v.length), distinctUntilChanged(), takeUntilDestroyed(inject(DestroyRef)))
-      .subscribe((len) => (this.nameLength = len)); // ...and in a zoneless app a plain field may not refresh the view without markForCheck()
+      // We also copy the result into a plain field. In a zoneless app, changing a
+      // plain field does not always refresh the view without calling markForCheck().
+      .subscribe((len) => (this.nameLength = len));
   }
 }

@@ -1,4 +1,4 @@
-# Signal Forms Cheat Sheet 🧾
+# Signal Forms Cheat Sheet
 
 `import { ... } from '@angular/forms/signals';` · Angular 22+
 
@@ -51,4 +51,4 @@ form(model, rules, { submission: { action: async (f) => {
 - **Bottom-up:** `new SignalFormControl(initial, rules)` inside an existing `FormGroup` (`@angular/forms/signals/compat`)
 - **Top-down:** `compatForm(signal({ name: '', legacy: new FormControl('') }))`
 
-📚 angular.dev/guide/forms/signals
+Docs: angular.dev/guide/forms/signals

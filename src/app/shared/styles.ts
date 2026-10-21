@@ -1,4 +1,4 @@
-// Shared component styles for every demo so we never waste stage time on CSS.
+// Shared styles used by every demo component, so the demos can focus on form logic.
 export const demoStyles = `
   :host { display:block; max-width:560px; margin:0 auto; font-family:system-ui, sans-serif; }
   form { display:grid; gap:14px; }

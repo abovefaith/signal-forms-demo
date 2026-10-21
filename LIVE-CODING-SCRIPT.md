@@ -1,31 +1,36 @@
-# 🎤 Live-Coding Script — "Type-Safe and Signal-Driven"
+# Live-Coding Script: "Type-Safe and Signal-Driven"
 
 GDG Soweto · Faith Kawira · Angular 22 (Signal Forms are stable since v22)
 
 **Golden rule:** every step has a finished copy in `src/app/demos/`. If something breaks, say *"this is why we have checkpoints"*, click the matching tab, and keep going.
 
----
-
-## ✅ Before you go on stage (night before + 10 min before)
-
-- [ ] `npm install` then `npm start` — app opens on http://localhost:4200, **Live** tab is empty.
-- [ ] VS Code: font size **20+** (`Ctrl/Cmd +`), theme with high contrast, Zen mode (`Ctrl/Cmd K Z`).
-- [ ] Close Slack, email, notifications. Turn off any AI autocomplete so the audience sees *you* type.
-- [ ] Split screen: VS Code left (60%), browser right (40%). Browser zoom 125%.
-- [ ] Open these tabs in VS Code, in order: `live/live-coding.ts`, `demos/01-reactive-before.ts`, `shared/fake-api.ts`.
-- [ ] Run once through all demo tabs to warm the dev server.
-- [ ] Wi-Fi off is fine — `fake-api.ts` works offline.
-
-Timing for coding blocks: **Live 1 ≈ 7 min · Live 2 ≈ 6 min · Live 3 ≈ 6 min · Interop ≈ 2 min**
+How to read this script:
+- **Step N** is something you do (type, click, save).
+- **Say:** is a line for the audience.
+- **Checkpoint:** is the tab to switch to if you get stuck.
 
 ---
 
-## LIVE 1 — From signal to form (≈ 7 min)
+## Before you go on stage (night before + 10 min before)
 
-> 🗣️ *"Let's build the actual registration form for GDG Soweto. Shout out: what fields do we need?"*
-> (Take 2–3 answers. Steer to name, email, password.)
+1. Run `npm install`, then `npm start`. The app opens on http://localhost:4200 and the **Live** tab is empty.
+2. Set up VS Code: font size **20+** (`Ctrl/Cmd +`), a high-contrast theme, Zen mode (`Ctrl/Cmd K Z`).
+3. Close Slack, email and notifications. Turn off AI autocomplete so the audience sees *you* type.
+4. Split the screen: VS Code on the left (60%), browser on the right (40%). Set browser zoom to 125%.
+5. Open these files in VS Code, in this order: `live/live-coding.ts`, `demos/01-reactive-before.ts`, `shared/fake-api.ts`.
+6. Click through every demo tab once to warm up the dev server.
+7. Wi-Fi off is fine: `fake-api.ts` works offline.
 
-**Step 1 — the model is just a type + a signal.** Above `@Component`:
+Timing for the coding blocks: **Live 1 about 7 min · Live 2 about 6 min · Live 3 about 6 min · Interop about 2 min**
+
+---
+
+## LIVE 1: From signal to form (about 7 min)
+
+> **Say:** *"Let's build the actual registration form for GDG Soweto. Shout out: what fields do we need?"*
+> (Take 2 or 3 answers. Steer towards name, email, password.)
+
+**Step 1: the model is just a type plus a signal.** Above `@Component`:
 
 ```ts
 interface Attendee {
@@ -41,7 +46,7 @@ Inside the class:
 attendee = signal<Attendee>({ name: '', email: '', password: '' });
 ```
 
-**Step 2 — wrap it in a form.** Add `form, FormField` to imports:
+**Step 2: wrap it in a form.** Add `form, FormField` to the imports:
 
 ```ts
 import { form, FormField } from '@angular/forms/signals';
@@ -51,7 +56,7 @@ imports: [FormField, JsonPipe],   // also import JsonPipe from '@angular/common'
 regForm = form(this.attendee);
 ```
 
-**Step 3 — bind inputs.** In the template, inside `<form>`:
+**Step 3: bind the inputs.** In the template, inside `<form>`:
 
 ```html
 <label>Name <input [formField]="regForm.name" /></label>
@@ -61,18 +66,18 @@ regForm = form(this.attendee);
 <pre>{{ attendee() | json }}</pre>
 ```
 
-Save. Type in the browser → JSON updates live.
+Save. Type in the browser and the JSON updates live.
 
-> 🗣️ *"No FormGroup. No FormControl. No formControlName strings. The form IS my data."*
+> **Say:** *"No FormGroup. No FormControl. No formControlName strings. The form IS my data."*
 
-**Step 4 — 🎯 the type-safety moment.** Change `regForm.email` → `regForm.emial`. Save. Show the red squiggle / terminal:
+**Step 4: the type-safety moment.** Change `regForm.email` to `regForm.emial`. Save. Show the red squiggle or the terminal:
 
 `Property 'emial' does not exist ... Did you mean 'email'?`
 
-> 🗣️ *"Hands up if you've ever shipped a typo in `formControlName`. ✋ The compiler now catches it."*
-> Fix it back.
+> **Say:** *"Hands up if you've ever shipped a typo in `formControlName`. The compiler now catches it."*
+> Fix the typo.
 
-**Step 5 — add rules with a schema.** Extend imports with `required, email, minLength`:
+**Step 5: add rules with a schema.** Add `required, email, minLength` to the imports:
 
 ```ts
 regForm = form(this.attendee, (path) => {
@@ -83,7 +88,7 @@ regForm = form(this.attendee, (path) => {
 });
 ```
 
-**Step 6 — show errors.** Under the email input:
+**Step 6: show the errors.** Under the email input:
 
 ```html
 @if (regForm.email().touched() && regForm.email().invalid()) {
@@ -93,125 +98,153 @@ regForm = form(this.attendee, (path) => {
 }
 ```
 
-And a button: `<button [disabled]="regForm().invalid()">Register</button>`
+Then add a button: `<button [disabled]="regForm().invalid()">Register</button>`
 
-> 🗣️ Point out: `regForm.email` (no parens) = the **field**, `regForm.email()` (with parens) = its **state**. Every piece of state is a signal: `value()`, `valid()`, `touched()`, `errors()`.
+> **Say:** `regForm.email` (no parentheses) is the **field**, `regForm.email()` (with parentheses) is its **state**. Every piece of state is a signal: `value()`, `valid()`, `touched()`, `errors()`.
 
-**Step 7 (if time) — derived state with `computed`:**
+**Step 7 (if there's time): derived state with `computed`.**
 
 ```ts
 strength = computed(() => {
   const pw = this.regForm.password().value();
-  if (!pw) return '—';
-  if (pw.length < 8) return 'weak 🔴';
-  return /[0-9]/.test(pw) && /[A-Z]/.test(pw) ? 'strong 🟢' : 'okay 🟡';
+  if (!pw) return '-';
+  if (pw.length < 8) return 'weak';
+  return /[0-9]/.test(pw) && /[A-Z]/.test(pw) ? 'strong' : 'okay';
 });
 ```
 
 `<span class="hint">Strength: {{ strength() }}</span>`
 
-> 🗣️ *"Compare this to the `valueChanges.pipe(...)` in the Before tab. Same result, zero subscriptions."*
+> **Say:** *"Compare this with the `valueChanges.pipe(...)` in the Before tab. Same result, zero subscriptions."*
 
-🛟 Checkpoint: **2 · Basics** tab / `demos/02-signal-basics.ts`
+**Checkpoint:** **2 · Basics** tab / `demos/02-signal-basics.ts`
 
 ---
 
-## LIVE 2 — Dynamic & cross-field validation (≈ 6 min)
+## LIVE 2: Dynamic and cross-field validation (about 6 min)
 
-> 🗣️ *"Students and professionals register differently. Who here is a student? Professional?"* (hands)
+> **Say:** *"Students and professionals register differently. Who here is a student? Professional?"* (hands up)
 
-Open `demos/03-dynamic-validation.ts` — the model + template are ready. **Delete the body of the schema function** before the talk (keep a copy!) and type these live:
+**Preparation (before the talk):** open `demos/03-dynamic-validation.ts`. The model and template are ready. Delete the body of the schema function (keep a copy!) so you can type it live.
+
+**Step 1: show or hide fields based on another field.**
 
 ```ts
-// 1. Show/hide based on another field
 hidden(p.university, ({ valueOf }) => valueOf(p.ticket) !== 'student');
 hidden(p.company, ({ valueOf }) => valueOf(p.ticket) !== 'professional');
 hidden(p.yearsExperience, ({ valueOf }) => valueOf(p.ticket) !== 'professional');
+```
 
-// 2. Conditional rule
+**Step 2: make one rule conditional with `when`.**
+
+```ts
 required(p.university, {
   when: ({ valueOf }) => valueOf(p.ticket) === 'student',
   message: 'Students: tell us your university',
 });
+```
 
-// 3. A whole block of rules switched on together
+**Step 3: switch a whole block of rules on together with `applyWhen`.**
+
+```ts
 applyWhen(p, ({ value }) => value().ticket === 'professional', (pro) => {
   required(pro.company, { message: 'Company is required for professionals' });
   min(pro.yearsExperience, 1, { message: 'Professionals need at least 1 year' });
 });
 ```
 
-Flip the dropdown back and forth.
+Save, then flip the ticket dropdown back and forth in the browser.
 
-> 🗣️ *"No `setValidators()`, no `updateValueAndValidity()`, no subscribing to the dropdown. The rule just reads another signal."*
+> **Say:** *"No `setValidators()`, no `updateValueAndValidity()`, no subscribing to the dropdown. The rule just reads another signal."*
+
+**Step 4: cross-field validation (the passwords must match).**
 
 ```ts
-// 4. Cross-field — passwords match
 validate(p.confirmPassword, ({ value, valueOf }) =>
   value() === valueOf(p.password)
     ? undefined
     : { kind: 'mismatch', message: "Passwords don't match" },
 );
+```
 
-// 5. Disabled — with a reason!
+**Step 5: a disabled field, with a reason.**
+
+```ts
 disabled(p.tshirtSize, ({ valueOf }) => (valueOf(p.wantsTshirt) ? false : 'Tick the T-shirt box first'));
 required(p.tshirtSize, { when: ({ valueOf }) => valueOf(p.wantsTshirt), message: 'Pick a size' });
 ```
 
-> 🗣️ Inspect the `<select>` in DevTools: Angular adds `required` and `disabled` attributes for you (good for accessibility).
+Save, then inspect the T-shirt `<select>` in DevTools.
 
-🛟 Checkpoint: **3 · Dynamic** tab
+> **Say:** *"Angular adds the `required` and `disabled` attributes for us, which is good for accessibility."*
+
+**Checkpoint:** **3 · Dynamic** tab
 
 ---
 
-## LIVE 3 — Async validation + submit, no RxJS (≈ 6 min)
+## LIVE 3: Async validation and submit, no RxJS (about 6 min)
 
-> 🗣️ *"Audience challenge: give me a username you think is taken."* Type their suggestions. Taken list: `faith, admin, gdg, soweto, angular`. Show `shared/fake-api.ts` briefly.
+> **Say:** *"Audience challenge: give me a username you think is taken."* Type their suggestions. The taken list is `faith, admin, gdg, soweto, angular`. Show `shared/fake-api.ts` briefly.
 
-Open `demos/04-async-and-submit.ts`. Delete `debounce(...)` and `validateAsync(...)` before the talk and type:
+**Preparation (before the talk):** open `demos/04-async-and-submit.ts` and delete `debounce(...)` and `validateAsync(...)`.
+
+**Step 1: wait for the user to stop typing.**
 
 ```ts
 debounce(p.username, 300);
+```
 
+**Step 2: add the async rule.**
+
+```ts
 validateAsync(p.username, {
-  params: ({ value }) => (value().length >= 3 ? value() : undefined), // undefined = skip
+  params: ({ value }) => (value().length >= 3 ? value() : undefined), // undefined = skip the check
   factory: (username) =>
     resource({
       params: username,
       loader: ({ params }) => isUsernameAvailable(params),
     }),
   onSuccess: (available) =>
-    available ? undefined : { kind: 'taken', message: 'Username already taken 😬' },
+    available ? undefined : { kind: 'taken', message: 'Username already taken' },
   onError: () => ({ kind: 'network', message: 'Could not check username' }),
 });
 ```
 
-Type `gdg` → ⏳ *Checking…* → ❌ taken. Type `thabo` → ✓.
+Save and try it. Type `gdg`: you see *Checking availability...*, then "Username already taken". Type `thabo`: you see "Available".
 
-> 🗣️ *"Pending state, cancelling stale requests, debounce — that used to be `switchMap`, `debounceTime`, `catchError`, `finalize`… Now it's config."*
-> 💡 With a real API, swap for `validateHttp(p.username, { request: ({value}) => \`/api/check?u=${value()}\`, onSuccess, onError })`.
+> **Say:** *"Pending state, cancelling stale requests, debounce: that used to be `switchMap`, `debounceTime`, `catchError`, `finalize`... Now it's config."*
+>
+> **Tip:** with a real API, use `validateHttp(p.username, { request: ({value}) => \`/api/check?u=${value()}\`, onSuccess, onError })` instead.
 
-**Submit.** Point at the `submission.action` option and `<form [formRoot]="signup">`. Enter email `taken@gdg.dev` → server error appears **on the email field**. Change email → 🎉.
+**Step 3: show the submit setup.** Point at the `submission.action` option and at `<form [formRoot]="signup">`.
 
-> 🗣️ *"Server errors are just validation errors. Return them from `action` and they land on the right field."*
+**Step 4: trigger a server error.** Enter the email `taken@gdg.dev` and submit. The server error appears **on the email field**.
 
-🛟 Checkpoint: **4 · Async + Submit** tab
+**Step 5: submit successfully.** Change the email and submit again. You see "You're in!".
 
----
+> **Say:** *"Server errors are just validation errors. Return them from `action` and they land on the right field."*
 
-## INTEROP — "But my app has 200 reactive forms…" (≈ 2 min, no typing)
-
-Click **5 · Interop**. Show `SignalFormControl` living inside an old `FormGroup`. Fill both → status flips to `VALID`.
-
-> 🗣️ *"Migrate one field at a time. `SignalFormControl` for bottom-up, `compatForm` for top-down."*
+**Checkpoint:** **4 · Async + Submit** tab
 
 ---
 
-## 🧯 If things go wrong
+## INTEROP: "But my app has 200 reactive forms..." (about 2 min, no typing)
+
+**Step 1:** click the **5 · Interop** tab.
+
+**Step 2:** show `SignalFormControl` living inside an old `FormGroup`.
+
+**Step 3:** fill in both fields. The status changes to `VALID`.
+
+> **Say:** *"Migrate one field at a time. `SignalFormControl` for bottom-up, `compatForm` for top-down."*
+
+---
+
+## If things go wrong
 
 | Problem | Fix |
 |---|---|
 | Red compile error you can't find | Click the checkpoint tab, keep talking |
-| Dev server crashed | `Ctrl+C`, `npm start` (talk about the next slide while it boots) |
-| Brain freeze | Glance at this file on your phone / second screen |
-| Running late | Skip Live 2 typing — show the finished tab and talk through it |
+| Dev server crashed | `Ctrl+C`, then `npm start` (talk about the next slide while it boots) |
+| Brain freeze | Glance at this file on your phone or a second screen |
+| Running late | Skip the Live 2 typing: show the finished tab and talk through it |

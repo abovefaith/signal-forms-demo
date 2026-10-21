@@ -11,7 +11,7 @@ Requires Node 22.22.3+ or 24.15+.
 
 | Tab | File | What it shows |
 |---|---|---|
-| 🎤 Live | `src/app/live/live-coding.ts` | Empty starter — we build it together |
+| Live | `src/app/live/live-coding.ts` | Empty starter, we build it together |
 | 1 · Before | `demos/01-reactive-before.ts` | Classic Reactive Forms + RxJS |
 | 2 · Basics | `demos/02-signal-basics.ts` | `form()`, `[formField]`, schema validators, `computed` |
 | 3 · Dynamic | `demos/03-dynamic-validation.ts` | `hidden`, `required({when})`, `applyWhen`, cross-field `validate`, `disabled` with reasons |
